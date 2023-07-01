@@ -10,12 +10,15 @@ temp_file=$(mktemp)
 git_user=$(git config user.name)
 git_email=$(git config user.email)
 
-# Find the commit where the current branch diverged from master
-diverged_commit=$(git merge-base HEAD master)
+# Check if the main branch is named "master" or "main"
+main_branch=$(git rev-parse --abbrev-ref HEAD | grep -q "master" && echo "master" || echo "main")
+
+# Find the commit where the current branch diverged from the main branch
+diverged_commit=$(git merge-base HEAD "$main_branch")
 
 # Get the commit messages since the current branch diverged from master
 # Filter for commit messages by the current git user
-commit_messages=$(git log --pretty=format:"%s" --author="$git_user <$git_email>" $diverged_commit..HEAD)
+commit_messages=$(git log --pretty=format:"%s" --author="$git_user <$git_email>" "$diverged_commit"..HEAD)
 
 # DEBUG
 # echo "START commit_messages"
