@@ -1,4 +1,4 @@
-# Pull Request (PR) Description Generator
+# Generate Pull Request (PR) Description
 
 **10x Devs: Automating PR Descriptions**
 
@@ -17,8 +17,8 @@ processes them to create a changelog-like PR description.
 2. Navigate to the repository's directory.
 
 ```bash
-$ git clone https://github.com/Aternus/pull-request-description.git
-$ cd pull-request-description
+$ git clone https://github.com/Aternus/generate-pr-description.git
+$ cd generate-pr-description
 ```
 
 3. Make the Bash script executable.

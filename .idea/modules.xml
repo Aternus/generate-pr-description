@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pull-request-description.iml" filepath="$PROJECT_DIR$/.idea/pull-request-description.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/generate-pr-description.iml" filepath="$PROJECT_DIR$/.idea/generate-pr-description.iml" />
     </modules>
   </component>
 </project>
