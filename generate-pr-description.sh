@@ -3,6 +3,12 @@
 # [Kiril Reznik] PR Description Generator
 # ------------------------------------------------------------------
 
+# Check if the current directory is inside a Git repository
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Error: This script must be run inside a Git repository."
+  exit 1
+fi
+
 # Create a temporary file to store the filtered commit messages
 temp_file=$(mktemp)
 
