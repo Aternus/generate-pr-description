@@ -24,7 +24,7 @@ $ cd pull-request-description
 3. Make the Bash script executable.
 
 ```bash
-$ chmod +x pr-description-generator.sh
+$ chmod +x generate-pr-description.sh
 ```
 
 4. Add the script to the `$PATH` environment variable to enable running it from
@@ -32,13 +32,13 @@ $ chmod +x pr-description-generator.sh
    that is already in the `$PATH`.
 
 ```bash
-$ ln -s "$PWD/pr-description-generator.sh" /usr/local/bin/pr-description-generator
+$ ln -s "$PWD/generate-pr-description.sh" /usr/local/bin/generate-pr-description
 ```
 
 Now you can run the script from any directory using its name.
 
 ```bash
-$ pr-description-generator
+$ generate-pr-description
 ```
 
 ## How it Works
