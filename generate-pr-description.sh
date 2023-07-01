@@ -27,14 +27,35 @@ diverged_commit=$(git merge-base HEAD "$main_branch")
 commit_messages=$(git log --pretty=format:"%s" --author="$git_user <$git_email>" "$diverged_commit"..HEAD)
 
 # DEBUG
-# echo "START commit_messages"
-# echo "$commit_messages"
-# echo "END commit_messages"
-# echo
+#echo "START commit_messages"
+#echo "$commit_messages"
+#echo "END commit_messages"
+#echo
 
 echo "$commit_messages" | while read -r line; do
   # Skip merge commits
   if [[ "$line" == Merge* ]]; then
+    continue
+  fi
+
+  # Check if the line starts with a hyphen or doesn't contain a ':'
+  if [[ "$line" == -* || ! "$line" == *:* ]]; then
+    # Split the message by '-' and store the pieces into the 'split_details' array
+    IFS='-' read -ra split_details <<<"${line#- }"
+
+    # Loop through each piece in the 'split_details' array
+    for detail in "${split_details[@]}"; do
+      # Remove leading and trailing whitespace from each detail
+      trimmed_detail="${detail#"${detail%%[![:space:]]*}"}"
+      trimmed_detail="${trimmed_detail%"${trimmed_detail##*[![:space:]]}"}"
+
+      if [[ "$trimmed_detail" == "" ]]; then
+        continue
+      fi
+
+      # Append the processed commit message to the temporary file
+      echo "CHORE: other - $trimmed_detail" >>"$temp_file"
+    done
     continue
   fi
 
@@ -46,17 +67,11 @@ echo "$commit_messages" | while read -r line; do
   task="${message%% - *}"
   details="${message#* - }"
 
-  # DEBUG
-  # echo
-  # echo "prefix: $prefix"
-  # echo "task: $task"
-  # echo "details: $details"
-  # echo
-
-  # If task is the same as details, reassign the commit into the "chore" group, under the "other" task
+  # If task is the same as details (meaning no details were provided),
+  # add the commit into its own category without further processing
   if [[ "$task" == "$details" ]]; then
-    prefix="CHORE"
-    task="other"
+    echo "$line" >>"$temp_file"
+    continue
   fi
 
   # Split the details by '-' and store the pieces into the 'split_details' array
@@ -67,11 +82,6 @@ echo "$commit_messages" | while read -r line; do
     # Remove leading and trailing whitespace from each detail
     trimmed_detail="${detail#"${detail%%[![:space:]]*}"}"
     trimmed_detail="${trimmed_detail%"${trimmed_detail##*[![:space:]]}"}"
-
-    # DEBUG
-    # echo
-    # echo "trimmed detail: $trimmed_detail"
-    # echo
 
     if [[ "$trimmed_detail" == "" ]]; then
       continue
@@ -100,8 +110,13 @@ sort "$temp_file" | uniq | while read -r line; do
     previous_prefix="$combined_prefix"
   fi
 
-  # Print the details of the commit message as a list item
-  echo "- ${line#* - }"
+  # Only print the details if they are not the same as the task
+  task="${line%% - *}"
+  details="${line#* - }"
+  if [[ "$task" != "$details" ]]; then
+    # Print the details of the commit message as a list item
+    echo "- ${line#* - }"
+  fi
 done
 
 # Delete the temporary file
