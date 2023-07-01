@@ -85,11 +85,12 @@ Assume we have the following commit messages in the branch since it diverged
 from the master:
 
 ```
-- FEATURE: Added a new feature A.
-- FIX: Fixed a critical bug in module B.
-- FEATURE: Added another feature C.
-- CHORE: other - Updated dependencies.
-- FIX: Fixed an issue related to feature A.
+- added a detail - then added another detail - but forgot to add prefix and task!
+CHORE: added just the prefix and the task
+- forgot to add the prefix and the task
+did something quick via GitHub UI
+FIX: another thingy - fixed an edge case that we missed last time
+FEAT: something awesome - created the skeleton - created the tests
 ```
 
 ### Output
@@ -99,19 +100,21 @@ When running the script, it will generate the following PR description:
 ```markdown
 # Changelog
 
-## FEATURE
-
-- Added a new feature A.
-- Added another feature C.
-
-## FIX
-
-- Fixed a critical bug in module B.
-- Fixed an issue related to feature A.
+## CHORE: added just the prefix and the task
 
 ## CHORE: other
+- added a detail
+- but forgot to add prefix and task!
+- did something quick via GitHub UI
+- forgot to add the prefix and the task
+- then added another detail
 
-- Updated dependencies.
+## FEAT: something awesome
+- created the skeleton
+- created the tests
+
+## FIX: another thingy
+- fixed an edge case that we missed last time
 ```
 
 ## Contributing
