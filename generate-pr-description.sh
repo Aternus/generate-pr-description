@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ------------------------------------------------------------------
-# [Kiril Reznik] PR Description Generator
+# [Kiril Reznik] Generate PR Description
 # ------------------------------------------------------------------
 
 # Check if the current directory is inside a Git repository
