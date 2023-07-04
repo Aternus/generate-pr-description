@@ -43,43 +43,49 @@ $ generate-pr-description
 
 ## How it Works
 
-The script follows these steps:
+This bash script generates a neatly formatted changelog from the commit history
+of a Git repository, specifically targeting commits made by the user running the
+script. The script will not work if run outside a Git repository or if
+there's no master or main branch available.
 
-1. It creates a temporary file to store the filtered commit messages.
+Let's break down the working of the script:
 
-2. The current Git user's name and email are retrieved.
+1. **Check for Git repository**: The script first checks if the current
+   directory is part of a Git repository.
 
-3. The commit where the current branch diverged from the master branch is
-   identified.
+2. **Temporary File**: The script creates a temporary file to store the filtered
+   commit messages.
 
-4. Commit messages since the branch divergence, filtered by the current Git
-   user, are retrieved.
+3. **Git User Information**: The script retrieves the name and email of the
+   current Git user.
 
-5. Each commit message is processed and categorized based on the prefix, task,
-   and details.
+4. **Main Branch Check**: The script checks what is the primary branch of the
+   repository.
 
-6. If the task is the same as the details, the commit is assigned to the "CHORE"
-   group under the "other" task.
+5. **Diverged Commit**: The script determines the commit where the current
+   branch diverged from the main branch.
 
-7. The details are split by hyphens ('-') and processed.
+6. **Commit Messages**: The script extracts all commit messages made by the
+   current Git user after the divergence from the main branch.
 
-8. Leading and trailing whitespace in each detail are removed.
+7. **Processing Commit Messages**: The script then processes each commit message
+   one by one. Merge commit messages are skipped.
 
-9. The processed commit messages are appended to the temporary file.
+8. **Generate Changelog**: The script generates a changelog by sorting and
+   removing duplicates from the commit messages stored in the temporary file.
+   The changelog groups commit messages by their prefixes and tasks, and prints
+   them under their respective headers. Only details that are not the same as
+   the task are printed as list items.
 
-10. The script generates a changelog-like PR description by sorting the commit
-    messages and removing duplicates.
+9. **Clean Up**: Finally, the script deletes the temporary file to clean up.
 
-11. The commit messages are grouped by prefixes, and each group is printed as a
-    header.
+Please note that the script expects commit messages to follow a specific
+format (like `prefix: task - details`). If your commit messages do not follow
+this format, the script may not work as expected.
 
-12. The details of each commit message are printed as a list item.
+### Example
 
-13. Finally, the temporary file is deleted.
-
-## Example
-
-### Input
+#### Input
 
 Assume we have the following commit messages in the branch since it diverged
 from the master:
@@ -93,7 +99,7 @@ FIX: another thingy - fixed an edge case that we missed last time
 FEAT: something awesome - created the skeleton - created the tests
 ```
 
-### Output
+#### Output
 
 When running the script, it will generate the following PR description:
 
