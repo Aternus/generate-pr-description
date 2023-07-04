@@ -17,7 +17,14 @@ git_user=$(git config user.name)
 git_email=$(git config user.email)
 
 # Check if the main branch is named "master" or "main"
-main_branch=$(git rev-parse --abbrev-ref HEAD | grep -q "master" && echo "master" || echo "main")
+if git show-ref --verify --quiet refs/heads/master; then
+  main_branch="master"
+elif git show-ref --verify --quiet refs/heads/main; then
+  main_branch="main"
+else
+  echo "Error: Can't find main branch (master or main)."
+  exit 1
+fi
 
 # Find the commit where the current branch diverged from the main branch
 diverged_commit=$(git merge-base HEAD "$main_branch")
