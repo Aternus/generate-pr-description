@@ -3,6 +3,14 @@
 # [Kiril Reznik] Generate PR Description
 # ------------------------------------------------------------------
 
+FULL_FILE_PATH="$(realpath "${BASH_SOURCE[0]}")"
+SCRIPT_PATH=$(dirname "$FULL_FILE_PATH")
+SCRIPT_NAME=$(basename "$FULL_FILE_PATH")
+
+source "${SCRIPT_PATH}/helpers.sh"
+
+# -----------------------------------------------------------------
+
 # Check if the current directory is inside a Git repository
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "Error: This script must be run inside a Git repository."
@@ -33,71 +41,58 @@ diverged_commit=$(git merge-base HEAD "$main_branch")
 # Filter for commit messages by the current git user
 commit_messages=$(git log --pretty=format:"%s" --author="$git_user <$git_email>" "$diverged_commit"..HEAD)
 
-# DEBUG
-#echo "START commit_messages"
-#echo "$commit_messages"
-#echo "END commit_messages"
-#echo
+output_to_file() {
+  debug_line "writing to temp file" "$1"
+  echo "$1" >>"$temp_file"
+}
+
+debug_block "Commit Messages" "$commit_messages"
 
 echo "$commit_messages" | while read -r line; do
   # Skip merge commits
-  if [[ "$line" == Merge* ]]; then
+  if [[ "$line" =~ ^Merge ]]; then
     continue
   fi
 
-  # Check if the line starts with a hyphen or doesn't contain a ':'
-  if [[ "$line" == -* || ! "$line" == *:* ]]; then
-    # Split the message by '-' and store the pieces into the 'split_details' array
-    IFS='-' read -ra split_details <<<"${line#- }"
+  # case: PREFIX: task - detail - another details
+  if [[ "$line" =~ ^([^:]+):[[:space:]]*(.+) ]]; then
+    prefix="${BASH_REMATCH[1]}"
+    message="${BASH_REMATCH[2]}"
 
-    # Loop through each piece in the 'split_details' array
-    for detail in "${split_details[@]}"; do
-      # Remove leading and trailing whitespace from each detail
-      trimmed_detail="${detail#"${detail%%[![:space:]]*}"}"
-      trimmed_detail="${trimmed_detail%"${trimmed_detail##*[![:space:]]}"}"
-
-      if [[ "$trimmed_detail" == "" ]]; then
-        continue
-      fi
-
-      # Append the processed commit message to the temporary file
-      echo "CHORE: other - $trimmed_detail" >>"$temp_file"
-    done
-    continue
-  fi
-
-  # Extract the prefix and the message from each line of the commit history
-  prefix="${line%%:*}"
-  message="${line#*: }"
-
-  # Split the message into a task and the remaining details
-  task="${message%% - *}"
-  details="${message#* - }"
-
-  # If task is the same as details (meaning no details were provided),
-  # add the commit into its own category without further processing
-  if [[ "$task" == "$details" ]]; then
-    echo "$line" >>"$temp_file"
-    continue
-  fi
-
-  # Split the details by '-' and store the pieces into the 'split_details' array
-  IFS='-' read -ra split_details <<<"$details"
-
-  # Loop through each piece in the 'split_details' array
-  for detail in "${split_details[@]}"; do
-    # Remove leading and trailing whitespace from each detail
-    trimmed_detail="${detail#"${detail%%[![:space:]]*}"}"
-    trimmed_detail="${trimmed_detail%"${trimmed_detail##*[![:space:]]}"}"
-
-    if [[ "$trimmed_detail" == "" ]]; then
-      continue
+    debug_line "prefix" "$prefix"
+    debug_line "message" "$message"
+    if [[ "$message" =~ ^([^-]+)[[:space:]]+-[[:space:]]+(.*) ]]; then
+      task="${BASH_REMATCH[1]}"
+      details="${BASH_REMATCH[2]}"
+      debug_line "> task" "$task"
+      debug_line "> details" "$details"
+      # Process details
+      IFS='-' read -ra split_details <<<"$details"
+      for detail in "${split_details[@]}"; do
+        processed_detail=$(trim "$detail")
+        if [[ "$processed_detail" != "" ]]; then
+          output_to_file "$prefix: $task - $processed_detail"
+        fi
+      done
+    else
+      output_to_file "$prefix: $message"
     fi
-
-    # Append the processed commit message to the temporary file
-    echo "$prefix: $task - $trimmed_detail" >>"$temp_file"
-  done
+  # case: - detail - another detail
+  elif [[ "$line" =~ ^- ]]; then
+    IFS='-' read -ra split_details <<<"$line"
+    # Process details
+    for detail in "${split_details[@]}"; do
+      processed_detail=$(trim "$detail")
+      if [[ "$processed_detail" != "" ]]; then
+        output_to_file "CHORE: other - $processed_detail"
+      fi
+    done
+  fi
 done
+
+debug_block "Temp File" "$(cat "$temp_file")"
+
+# -----------------------------------------------------------------
 
 echo "# Changelog"
 echo
