@@ -87,9 +87,7 @@ echo "$commit_messages" | while read -r line; do
         output_to_file "CHORE: other - $processed_detail"
       fi
     done
-  # case: did something quick via GitHub UI
-  # case: updated package-name
-  elif [[ ! "$line" =~ ^: ]]; then
+  else
     processed_detail=$(trim "$line")
     output_to_file "CHORE: other - $processed_detail"
   fi

@@ -30,6 +30,7 @@ load "test-setup.bats"
 - did something quick via GitHub UI
 - forgot to add the prefix and the task
 - then added another detail
+- updated package-name
 
 ## FEAT: something awesome
 - changed another thingy

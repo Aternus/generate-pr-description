@@ -3,23 +3,29 @@
 # [Kiril Reznik] Helpers
 # ------------------------------------------------------------------
 
+IS_DEBUG=false
+
 debug_line() {
   local title="$1"
   local line="$2"
-  echo "debug:: $title:: $line"
+  if [ "$IS_DEBUG" = true ]; then
+    echo "debug:: $title:: $line"
+  fi
 }
 
 debug_block() {
   local title="$1"
   local block="$2"
-  echo "========================================"
-  echo "debug:: $title"
-  echo "$block"
-  echo "========================================"
+  if [ "$IS_DEBUG" = true ]; then
+    echo "========================================"
+    echo "debug:: $title"
+    echo "$block"
+    echo "========================================"
+  fi
 }
 
 trim() {
   local input="$1"
-  trimmed_input=$(echo "$input" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-  echo $trimmed_input
+  local trimmed_input=$(echo "$input" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  echo "$trimmed_input"
 }
