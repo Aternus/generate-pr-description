@@ -21,7 +21,7 @@ teardown() {
 
 echo_block() {
     local terminal_width=$(tput cols)
-    local width=$(($terminal_width - 2))
+    local width=$(($terminal_width - 4))
     local title=" $1 "
     local content="$2"
 
