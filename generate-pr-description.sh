@@ -78,7 +78,8 @@ echo "$commit_messages" | while read -r line; do
       output_to_file "$prefix: $message"
     fi
   # case: - detail - another detail
-  elif [[ "$line" =~ ^- ]]; then
+  # case: did something quick via GitHub UI
+  elif [[ "$line" =~ ^- || ! "$line" =~ ^: ]]; then
     IFS='-' read -ra split_details <<<"$line"
     # Process details
     for detail in "${split_details[@]}"; do

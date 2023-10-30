@@ -31,11 +31,20 @@ load "test-setup.bats"
 - then added another detail
 
 ## FEAT: something awesome
+- changed another thingy
 - created the skeleton
 - created the tests
 
 ## FIX: another thingy
-- fixed an edge case that we missed last time"
+- fixed an edge case that we missed last time
+
+## PREFIX: another task
+- detail with whitespace around it
+
+## PREFIX: task
+- detail 1
+- detail 2
+- detail 3"
 
     debug_output "$output" "$expected_output"
 
