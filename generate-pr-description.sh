@@ -54,7 +54,7 @@ echo "$commit_messages" | while read -r line; do
     continue
   fi
 
-  # case: PREFIX: task - detail - another details
+  # case: PREFIX: task - detail - another detail
   if [[ "$line" =~ ^([^:]+):[[:space:]]*(.+) ]]; then
     prefix="${BASH_REMATCH[1]}"
     message="${BASH_REMATCH[2]}"
