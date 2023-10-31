@@ -109,22 +109,26 @@ debug_block "Temp File" "$(cat "$temp_file")"
 echo "# Changelog"
 echo
 
-previous_title=""
+# Extract all unique titles
+titles=$(awk -F " - " '{print $1}' "$temp_file" | sort -u)
 
-# Sort the commit messages in the temporary file and remove duplicates
-sort "$temp_file" | uniq | while read -r line; do
-  title="${line%% - *}"
-  details="${line#* - }"
+while read -r title; do
+  echo "## $title"
 
-  if [[ "$title" != "$previous_title" ]]; then
-    # Print a newline before each new title except the first one
-    [[ -n "$previous_title" ]] && echo
-    echo "## $title"
-    previous_title="$title"
-  fi
+  printed_details="" # String to track already printed details for the title
 
-  [[ "$title" != "$details" ]] && echo "- $details"
-done
+  grep "^$title - " "$temp_file" | while read -r line; do
+    detail="${line#* - }"
+
+    # Only print the detail if it hasn't been printed before for the current title
+    if [[ ! $printed_details =~ "$detail" && "$title" != "$detail" ]]; then
+      echo "- $detail"
+      printed_details="$printed_details|$detail" # Append to the string of printed details
+    fi
+  done
+
+  echo
+done <<<"$titles"
 
 # Delete the temporary file
 rm "$temp_file"
