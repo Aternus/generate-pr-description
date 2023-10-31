@@ -109,28 +109,21 @@ debug_block "Temp File" "$(cat "$temp_file")"
 echo "# Changelog"
 echo
 
+previous_title=""
+
 # Sort the commit messages in the temporary file and remove duplicates
 sort "$temp_file" | uniq | while read -r line; do
-  # Combine the prefix and task into a new prefix
-  combined_prefix="${line%% -*}"
-
-  # If this prefix is different from the previous prefix, print it as a header
-  if [[ "$combined_prefix" != "$previous_prefix" ]]; then
-    # Print a newline before each header except the first one
-    if [[ -n "$previous_prefix" ]]; then
-      echo
-    fi
-    echo "## $combined_prefix"
-    previous_prefix="$combined_prefix"
-  fi
-
-  # Only print the details if they are not the same as the task
-  task="${line%% - *}"
+  title="${line%% - *}"
   details="${line#* - }"
-  if [[ "$task" != "$details" ]]; then
-    # Print the details of the commit message as a list item
-    echo "- ${line#* - }"
+
+  if [[ "$title" != "$previous_title" ]]; then
+    # Print a newline before each new title except the first one
+    [[ -n "$previous_title" ]] && echo
+    echo "## $title"
+    previous_title="$title"
   fi
+
+  [[ "$title" != "$details" ]] && echo "- $details"
 done
 
 # Delete the temporary file
