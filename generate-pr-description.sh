@@ -77,16 +77,25 @@ echo "$commit_messages" | while read -r line; do
     else
       output_to_file "$prefix: $message"
     fi
-  # case: - detail - another detail
+  # case: - detail - another detail - updated package-name
   elif [[ "$line" =~ ^- ]]; then
-    IFS='-' read -ra split_details <<<"$line"
-    # Process details
-    for detail in "${split_details[@]}"; do
+    line=${line#- } # Strip the first '- ' from the line
+
+    # While we can still find ' - ' in the line
+    while [[ "$line" == *' - '* ]]; do
+      detail="${line%% - *}" # Everything before the first ' - '
       processed_detail=$(trim "$detail")
       if [[ "$processed_detail" != "" ]]; then
         output_to_file "CHORE: other - $processed_detail"
       fi
+      line="${line#* - }" # Everything after the first ' - '
     done
+
+    # The remaining part of the line
+    processed_detail=$(trim "$line")
+    if [[ "$processed_detail" != "" ]]; then
+      output_to_file "CHORE: other - $processed_detail"
+    fi
   else
     processed_detail=$(trim "$line")
     output_to_file "CHORE: other - $processed_detail"
