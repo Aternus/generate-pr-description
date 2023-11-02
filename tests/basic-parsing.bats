@@ -26,17 +26,17 @@ load "test-setup.bats"
 ## CHORE: added just the prefix and the task
 
 ## CHORE: other
-- added a detail
-- but forgot to add prefix and task!
 - did something quick via GitHub UI
-- forgot to add the prefix and the task
-- then added another detail
 - updated package-name
+- forgot to add the prefix and the task
+- added a detail
+- then added another detail
+- but forgot to add prefix and task!
 
 ## FEAT: something awesome
-- changed another thingy
 - created the skeleton
 - created the tests
+- changed another thingy
 
 ## FIX: another thingy
 - fixed an edge case that we missed last time

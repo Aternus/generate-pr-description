@@ -109,29 +109,26 @@ debug_block "Temp File" "$(cat "$temp_file")"
 echo "# Changelog"
 echo
 
-# Sort the commit messages in the temporary file and remove duplicates
-sort "$temp_file" | uniq | while read -r line; do
-  # Combine the prefix and task into a new prefix
-  combined_prefix="${line%% -*}"
+# Extract all unique titles
+titles=$(awk -F " - " '{print $1}' "$temp_file" | sort -u)
 
-  # If this prefix is different from the previous prefix, print it as a header
-  if [[ "$combined_prefix" != "$previous_prefix" ]]; then
-    # Print a newline before each header except the first one
-    if [[ -n "$previous_prefix" ]]; then
-      echo
+while read -r title; do
+  echo "## $title"
+
+  printed_details="" # String to track already printed details for the title
+
+  grep "^$title - " "$temp_file" | while read -r line; do
+    detail="${line#* - }"
+
+    # Only print the detail if it hasn't been printed before for the current title
+    if [[ ! $printed_details =~ "$detail" && "$title" != "$detail" ]]; then
+      echo "- $detail"
+      printed_details="$printed_details|$detail" # Append to the string of printed details
     fi
-    echo "## $combined_prefix"
-    previous_prefix="$combined_prefix"
-  fi
+  done
 
-  # Only print the details if they are not the same as the task
-  task="${line%% - *}"
-  details="${line#* - }"
-  if [[ "$task" != "$details" ]]; then
-    # Print the details of the commit message as a list item
-    echo "- ${line#* - }"
-  fi
-done
+  echo
+done <<<"$titles"
 
 # Delete the temporary file
 rm "$temp_file"
